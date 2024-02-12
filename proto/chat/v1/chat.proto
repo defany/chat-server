@@ -1,0 +1,37 @@
+syntax = 'proto3';
+
+package chat.v1;
+
+option go_package = 'github.com/defany/chat-server/proto/pkg/chat_v1;chat_v1';
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service Chat {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  /* https://buf.build/docs/lint/rules#rpc_request_response */
+  // buf:lint:ignore RPC_SAME_RESPONSE_TYPE
+  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+  /* https://buf.build/docs/lint/rules#rpc_request_response */
+  // buf:lint:ignore RPC_SAME_RESPONSE_TYPE
+  rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty);
+}
+
+message CreateRequest {
+  repeated string usernames = 1;
+}
+
+message CreateResponse {
+  int64 id = 1;
+}
+
+message DeleteRequest {
+  int64 id = 1;
+}
+
+message SendMessageRequest {
+  /* Такое чувство, что тут ошибка в описании сообщения, так как from выглядит, как Int64 user id */
+  int64 from = 1;
+  string text = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
