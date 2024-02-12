@@ -31,9 +31,9 @@ jobs:
           docker buildx create --use
           docker buildx build --no-cache --push --tag $REGISTRY/$IMAGE_NAME:$TAG_NAME .
 
-  deploy-image:
+  deploy:
     runs-on: ubuntu-latest
-    needs: image-build-and-push
+    needs: build-push
 
     steps:
       - name: Deploy to server via SSH action
