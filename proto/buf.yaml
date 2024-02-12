@@ -7,5 +7,6 @@ lint:
     - service_suffix
   use:
     - DEFAULT
+  allow_comment_ignores: true
 deps:
   - buf.build/envoyproxy/protoc-gen-validate

@@ -3,13 +3,15 @@ package main
 import (
 	context "context"
 	"fmt"
+	"log/slog"
+	"net"
+	"os"
+
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/defany/chat-server/app/pkg/gen/chat/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"log/slog"
-	"net"
-	"os"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const port = 50001
@@ -33,17 +35,17 @@ func (s *server) Create(ctx context.Context, request *chatv1.CreateRequest) (*ch
 	}, nil
 }
 
-func (s *server) Delete(ctx context.Context, request *chatv1.DeleteRequest) (*chatv1.DeleteResponse, error) {
+func (s *server) Delete(ctx context.Context, request *chatv1.DeleteRequest) (*emptypb.Empty, error) {
 	log := slog.With(
 		slog.Int64("chat_id", request.GetId()),
 	)
 
 	log.Info("delete chat request")
 
-	return &chatv1.DeleteResponse{}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s *server) SendMessage(ctx context.Context, request *chatv1.SendMessageRequest) (*chatv1.SendMessageResponse, error) {
+func (s *server) SendMessage(ctx context.Context, request *chatv1.SendMessageRequest) (*emptypb.Empty, error) {
 	log := slog.With(
 		slog.Int64("from", request.GetFrom()),
 		slog.String("text", request.GetText()),
@@ -52,14 +54,13 @@ func (s *server) SendMessage(ctx context.Context, request *chatv1.SendMessageReq
 
 	log.Info("send message request")
 
-	return &chatv1.SendMessageResponse{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func main() {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		slog.Error("failed to listen: %v", err)
-
 		os.Exit(1)
 	}
 
@@ -73,7 +74,6 @@ func main() {
 
 	if err := s.Serve(lis); err != nil {
 		slog.Error("failed to serve: %v", err)
-
 		os.Exit(1)
 	}
 }
