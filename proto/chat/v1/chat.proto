@@ -30,8 +30,9 @@ message DeleteRequest {
 }
 
 message SendMessageRequest {
+  int64 chatId = 1;
   /* Такое чувство, что тут ошибка в описании сообщения, так как from выглядит, как Int64 user id */
-  int64 from = 1;
-  string text = 2;
-  google.protobuf.Timestamp timestamp = 3;
+  int64 from = 2;
+  string text = 3;
+  google.protobuf.Timestamp timestamp = 4;
 }

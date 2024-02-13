@@ -361,6 +361,8 @@ func (m *SendMessageRequest) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for ChatId
+
 	// no validation rules for From
 
 	// no validation rules for Text
