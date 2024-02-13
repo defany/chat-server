@@ -3,6 +3,7 @@ FROM golang:1.22-alpine as builder
 COPY . /github.com/defany/chat-server/source
 WORKDIR  /github.com/defany/chat-server/source
 
+RUN go mod tidy
 RUN go mod download
 RUN go build -o ./bin/server app/cmd/main.go
 

@@ -1,5 +1,4 @@
 include .env
-export
 
 REGISTRY_HOST=docker.io
 REGISTRY:=defany
@@ -24,3 +23,12 @@ docker-run:
 	docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
 
 	docker run -p 50001:50001 $(REGISTRY)/$(CONTAINER_NAME)
+
+migrate-up:
+	goose -dir $(MIGRATIONS_DIR) postgres "user=${PG_USER} dbname=${PG_DATABASE_NAME} sslmode=disable password=${PG_PASSWORD}" up -v
+
+migrate-down:
+	goose -dir $(MIGRATIONS_DIR) postgres "user=${PG_USER} dbname=${PG_DATABASE_NAME} sslmode=disable password=${PG_PASSWORD}" down -v
+
+migrate-status:
+	goose -dir $(MIGRATIONS_DIR) postgres "user=${PG_USER} dbname=${PG_DATABASE_NAME} sslmode=disable password=${PG_PASSWORD}" status -v
