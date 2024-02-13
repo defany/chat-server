@@ -90,11 +90,11 @@ jobs:
             
             docker compose down
 
-#            # Stop running container
-#            docker stop $CONTAINER_NAME
-#
-#            # Remove old container
-#            docker rm $CONTAINER_NAME
+            # Stop running container
+            # docker stop $CONTAINER_NAME
+
+            # Remove old container
+            # docker rm $CONTAINER_NAME
 
             docker-compose up -d
             
