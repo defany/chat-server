@@ -1,7 +1,7 @@
 package main
 
 import (
-	context "context"
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -210,8 +210,6 @@ func (s *server) SendMessage(ctx context.Context, request *chatv1.SendMessageReq
 		return &emptypb.Empty{}, ErrCreateMessage
 	}
 
-	log.Debug(sql)
-
 	_, err = s.db.Exec(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to send message to chat", slog.String("error", err.Error()))
@@ -242,9 +240,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-
 	reflection.Register(s)
-
 	chatv1.RegisterChatServer(s, &server{
 		db: pool,
 		qb: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),

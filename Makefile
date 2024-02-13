@@ -7,6 +7,8 @@ CONTAINER_NAME:=chat-server:v0.0.1
 protogen:
 	buf generate proto
 
+	go mod download
+
 	go mod tidy
 
 run:

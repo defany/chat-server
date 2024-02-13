@@ -80,17 +80,23 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           envs: IMAGE_NAME, REGISTRY, GITHUB_SHA, CONTAINER_NAME
           script: |
+            set SERVER_IMAGE = $REGISTRY/$IMAGE_NAME:$TAG_NAME
+            
             # Set up variables
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
             
             # Login into Selectel Registry
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} $REGISTRY
             
-            # Stop running container
-            docker stop $CONTAINER_NAME
-            
-            # Remove old container
-            docker rm $CONTAINER_NAME
+            docker compose down
+
+#            # Stop running container
+#            docker stop $CONTAINER_NAME
+#
+#            # Remove old container
+#            docker rm $CONTAINER_NAME
+
+            docker-compose up -d
             
             # Run a new container from a new image
             docker run -d -p 50001:50001 --name $CONTAINER_NAME -t $REGISTRY/$IMAGE_NAME:$TAG_NAME
