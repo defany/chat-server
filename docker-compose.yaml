@@ -31,7 +31,6 @@ services:
       DB_HOST: postgres
 
   server:
-    image: ${SERVER_IMAGE}
     build:
       context: .
       dockerfile: Dockerfile

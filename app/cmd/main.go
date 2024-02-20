@@ -14,7 +14,9 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -26,6 +28,23 @@ const (
 	chats      = "chats"
 	messages   = "chats_messages"
 	usersChats = "users_chats"
+)
+
+const (
+	UsersChatsChatID = "chat_id"
+)
+
+const (
+	MessagesID        = "id"
+	MessagesChatID    = "chat_id"
+	MessagesUserID    = "user_id"
+	MessagesText      = "text"
+	MessagesTimestamp = "timestamp"
+)
+
+const (
+	ChatsID    = "id"
+	ChatsTitle = "title"
 )
 
 var (
@@ -49,22 +68,22 @@ func (s *server) Create(ctx context.Context, request *chatv1.CreateRequest) (*ch
 	log.Info("create chat request")
 
 	q := s.qb.Insert(chats).
-		Columns("title").
-		Values(gofakeit.BookTitle()).
+		Columns(ChatsTitle).
+		Values(request.GetTitle()).
 		Suffix("returning id")
 
 	sql, args, err := q.ToSql()
 	if err != nil {
 		log.Error("failed to build query to create chat", slog.String("error", err.Error()))
 
-		return &chatv1.CreateResponse{}, ErrCreateChat
+		return nil, status.Error(codes.Internal, ErrCreateChat.Error())
 	}
 
 	rows, err := s.db.Query(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to execute query to create chat", slog.String("error", err.Error()))
 
-		return &chatv1.CreateResponse{}, ErrCreateChat
+		return nil, status.Error(codes.Internal, ErrCreateChat.Error())
 	}
 	defer rows.Close()
 
@@ -72,13 +91,13 @@ func (s *server) Create(ctx context.Context, request *chatv1.CreateRequest) (*ch
 	if err != nil {
 		log.Error("error getting chat id", slog.String("error", err.Error()))
 
-		return &chatv1.CreateResponse{}, ErrCreateChat
+		return nil, status.Error(codes.Internal, ErrCreateChat.Error())
 	}
 
-	log = log.With(slog.Int64("chat_id", chatID))
+	log = log.With(slog.Int64(MessagesChatID, chatID))
 
 	q = s.qb.Insert(usersChats).
-		Columns("chat_id", "user_id")
+		Columns(MessagesChatID, MessagesUserID)
 
 	/*
 		В будущем для auth сервиса прикрутим ручку, чтобы по имени юзеров получать их айди
@@ -96,14 +115,14 @@ func (s *server) Create(ctx context.Context, request *chatv1.CreateRequest) (*ch
 	if err != nil {
 		log.Error("failed to build query to add users in chat", slog.String("error", err.Error()))
 
-		return &chatv1.CreateResponse{}, ErrCreateChat
+		return nil, status.Error(codes.Internal, ErrCreateChat.Error())
 	}
 
 	_, err = s.db.Exec(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to exec query to add users in chat", slog.String("error", err.Error()))
 
-		return &chatv1.CreateResponse{}, ErrCreateChat
+		return nil, status.Error(codes.Internal, ErrCreateChat.Error())
 	}
 
 	return &chatv1.CreateResponse{
@@ -116,7 +135,7 @@ func (s *server) Create(ctx context.Context, request *chatv1.CreateRequest) (*ch
 	а просто менять значение и не отображать в случае чего, но это, наверное, выходит за рамки и пошел просто за удаление сообщений
 */
 
-func (s *server) Delete(ctx context.Context, request *chatv1.DeleteRequest) (*emptypb.Empty, error) {
+func (s *server) Delete(ctx context.Context, request *chatv1.DeleteRequest) (empty *emptypb.Empty, err error) {
 	log := slog.With(
 		slog.Int64("chat_id", request.GetId()),
 	)
@@ -127,64 +146,84 @@ func (s *server) Delete(ctx context.Context, request *chatv1.DeleteRequest) (*em
 	if err != nil {
 		log.Error("failed to begin transaction for delete chat", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, ErrDeleteChat
+		return nil, status.Error(codes.Internal, ErrDeleteChat.Error())
 	}
 
+	defer func() {
+		if err != nil {
+			if txErr := tx.Rollback(ctx); txErr != nil {
+				log.Error("failed to rollback transaction for delete chat", slog.String("error", txErr.Error()))
+
+				err = status.Error(codes.Internal, ErrDeleteChat.Error())
+			}
+
+			return
+		}
+
+		if txErr := tx.Commit(ctx); txErr != nil {
+			log.Error("failed to commit transaction for delete chat", slog.String("error", txErr.Error()))
+
+			err = status.Error(codes.Internal, ErrDeleteChat.Error())
+		}
+
+		return
+	}()
+
 	q := s.qb.Delete(usersChats).
-		Where(squirrel.Eq{"chat_id": request.GetId()})
+		Where(squirrel.Eq{
+			UsersChatsChatID: request.GetId(),
+		})
 
 	sql, args, err := q.ToSql()
 	if err != nil {
 		log.Error("failed to build query to delete users from chat", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, ErrDeleteChat
+		return nil, status.Error(codes.Internal, ErrDeleteChat.Error())
 	}
 
 	_, err = tx.Exec(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to delete users from chat", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, ErrDeleteChat
+		return nil, status.Error(codes.Internal, ErrDeleteChat.Error())
 	}
 
 	q = s.qb.Delete(messages).
-		Where(squirrel.Eq{"chat_id": request.GetId()})
+		Where(squirrel.Eq{
+			MessagesChatID: request.GetId(),
+		})
 
 	sql, args, err = q.ToSql()
 	if err != nil {
 		log.Error("failed to build query to delete chat messages", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, ErrDeleteChat
+		return nil, status.Error(codes.Internal, ErrDeleteChat.Error())
 	}
 
 	_, err = tx.Exec(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to delete chat messages", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, ErrDeleteChat
+		return nil, status.Error(codes.Internal, ErrDeleteChat.Error())
 	}
 
 	q = s.qb.Delete(chats).
-		Where(squirrel.Eq{"id": request.GetId()})
+		Where(squirrel.Eq{
+			ChatsID: request.GetId(),
+		})
 
 	sql, args, err = q.ToSql()
 	if err != nil {
 		log.Error("failed to build query to delete chat", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, ErrDeleteChat
+		return nil, status.Error(codes.Internal, ErrDeleteChat.Error())
 	}
 
 	_, err = tx.Exec(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to delete chat", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, ErrDeleteChat
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		log.Error("failed to commit transaction for delete chat", slog.String("error", err.Error()))
-
-		return &emptypb.Empty{}, ErrDeleteChat
+		return nil, status.Error(codes.Internal, ErrDeleteChat.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -192,29 +231,29 @@ func (s *server) Delete(ctx context.Context, request *chatv1.DeleteRequest) (*em
 
 func (s *server) SendMessage(ctx context.Context, request *chatv1.SendMessageRequest) (*emptypb.Empty, error) {
 	log := slog.With(
-		slog.Int64("from", request.GetFrom()),
-		slog.String("text", request.GetText()),
-		slog.String("timestamp", request.GetTimestamp().AsTime().String()),
+		slog.Int64(MessagesUserID, request.GetFrom()),
+		slog.String(MessagesText, request.GetText()),
+		slog.String(MessagesTimestamp, request.GetTimestamp().AsTime().String()),
 	)
 
 	log.Info("send message request")
 
 	q := s.qb.Insert(messages).
-		Columns("chat_id", "user_id", "text", "timestamp").
+		Columns(MessagesChatID, MessagesUserID, MessagesText, MessagesTimestamp).
 		Values(request.GetChatId(), request.GetFrom(), request.GetText(), request.GetTimestamp().AsTime())
 
 	sql, args, err := q.ToSql()
 	if err != nil {
 		log.Error("failed to build query to send message to chat", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, ErrCreateMessage
+		return nil, status.Error(codes.Internal, ErrCreateMessage.Error())
 	}
 
 	_, err = s.db.Exec(ctx, sql, args...)
 	if err != nil {
 		log.Error("failed to send message to chat", slog.String("error", err.Error()))
 
-		return &emptypb.Empty{}, ErrCreateMessage
+		return nil, status.Error(codes.Internal, ErrCreateMessage.Error())
 	}
 
 	return &emptypb.Empty{}, nil

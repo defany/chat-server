@@ -18,7 +18,8 @@ service Chat {
 }
 
 message CreateRequest {
-  repeated string usernames = 1;
+  string title = 1;
+  repeated string usernames = 2;
 }
 
 message CreateResponse {
