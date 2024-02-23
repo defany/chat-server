@@ -57,6 +57,8 @@ func (m *CreateRequest) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for Title
+
 	if len(errors) > 0 {
 		return CreateRequestMultiError(errors)
 	}
@@ -360,6 +362,8 @@ func (m *SendMessageRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	// no validation rules for ChatId
 
 	// no validation rules for From
 
