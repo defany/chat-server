@@ -36,4 +36,8 @@ migrate-status:
 	goose -dir $(MIGRATIONS_DIR) postgres "user=${PG_USER} dbname=${PG_DATABASE_NAME} sslmode=disable password=${PG_PASSWORD}" status -v
 
 up:
-	docker compose up --build -d
+	docker compose down
+
+	docker compose build --no-cache
+
+	docker compose up -d

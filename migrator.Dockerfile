@@ -1,19 +1,16 @@
-FROM alpine:3.13
+FROM golang:1.22-alpine as builder
 
-RUN apk update && \
-    apk upgrade && \
-    apk add bash && \
-    rm -rf /var/cache/apk/*
+COPY . /github.com/defany/chat-server/source
+WORKDIR  /github.com/defany/chat-server/source
 
-ADD https://github.com/pressly/goose/releases/download/v3.18.0/goose_linux_x86_64 /bin/goose
-RUN chmod +x /bin/goose
+RUN go mod download
+RUN go build -o ./bin/migrator app/cmd/migrator/migrator.go
 
-WORKDIR /root
+FROM alpine:latest
 
-ADD migrations/*.sql migrations/
-ADD migration.sh .
-ADD .env .
+WORKDIR /root/
+COPY --from=builder /github.com/defany/chat-server/source/migrations ./migrations
+COPY --from=builder /github.com/defany/chat-server/source/bin/migrator .
+COPY --from=builder /github.com/defany/chat-server/source/config .
 
-RUN chmod +x migration.sh
-
-ENTRYPOINT ["bash", "migration.sh"]
+CMD ["./migrator"]

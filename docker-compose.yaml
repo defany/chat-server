@@ -31,6 +31,8 @@ services:
       DB_HOST: postgres
 
   server:
+    environment:
+      CONFIG_PATH: ./local.json
     build:
       context: .
       dockerfile: Dockerfile
