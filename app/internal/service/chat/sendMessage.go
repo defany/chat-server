@@ -20,6 +20,9 @@ func (s *service) SendMessage(ctx context.Context, input converter.SendMessageIn
 			Action: model.LogSendMessage,
 			UserID: input.From,
 		})
+		if err != nil {
+			return err
+		}
 
 		return nil
 	})
