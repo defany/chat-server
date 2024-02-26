@@ -45,11 +45,7 @@ func (t *txManager) tx(ctx context.Context, opts pgx.TxOptions, handler Handler)
 		}
 
 		if err != nil {
-			log.Println(fmt.Sprintf("АЛООООО: %s", err.Error()))
-
 			if txErr := tx.Rollback(ctx); txErr != nil {
-				log.Println(fmt.Sprintf("АЛООООО: %s", txErr.Error()))
-
 				err = errs.Join(txErr, err)
 			}
 
@@ -57,8 +53,6 @@ func (t *txManager) tx(ctx context.Context, opts pgx.TxOptions, handler Handler)
 		}
 
 		if txErr := tx.Commit(ctx); txErr != nil {
-			log.Println(fmt.Sprintf("АЛООООО: %s", txErr.Error()))
-
 			err = txErr
 		}
 	}()
