@@ -11,3 +11,7 @@ type Chat interface {
 	Delete(ctx context.Context, id int64) error
 	SendMessage(ctx context.Context, input converter.SendMessageInput) error
 }
+
+type Log interface {
+	Log(ctx context.Context, log model.Log) error
+}

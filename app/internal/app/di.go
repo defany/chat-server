@@ -6,6 +6,7 @@ import (
 	"github.com/defany/chat-server/app/internal/config"
 	"github.com/defany/chat-server/app/internal/repository"
 	chatrepo "github.com/defany/chat-server/app/internal/repository/chat"
+	logrepo "github.com/defany/chat-server/app/internal/repository/log"
 	servicedef "github.com/defany/chat-server/app/internal/service"
 	chatservice "github.com/defany/chat-server/app/internal/service/chat"
 	"github.com/defany/chat-server/app/pkg/closer"
@@ -22,6 +23,7 @@ type DI struct {
 
 	repositories struct {
 		chat repository.Chat
+		log  repository.Log
 	}
 
 	services struct {
@@ -110,12 +112,22 @@ func (d *DI) ChatRepo(ctx context.Context) repository.Chat {
 	return d.repositories.chat
 }
 
+func (d *DI) LogRepo(ctx context.Context) repository.Log {
+	if d.repositories.log != nil {
+		return d.repositories.log
+	}
+
+	d.repositories.log = logrepo.NewRepository(d.Database(ctx))
+
+	return d.repositories.log
+}
+
 func (d *DI) ChatService(ctx context.Context) servicedef.Chat {
 	if d.services.chat != nil {
 		return d.services.chat
 	}
 
-	d.services.chat = chatservice.NewService(d.TxManager(ctx), d.ChatRepo(ctx))
+	d.services.chat = chatservice.NewService(d.TxManager(ctx), d.ChatRepo(ctx), d.LogRepo(ctx))
 
 	return d.services.chat
 }

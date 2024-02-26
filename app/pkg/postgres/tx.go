@@ -6,16 +6,13 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
+	"log"
 )
 
 type txKey struct{}
 
 type TxManager interface {
 	ReadCommitted(ctx context.Context, handler Handler) error
-}
-
-type Transactor interface {
-	WithTx(ctx context.Context) pgx.Tx
 }
 
 type Handler func(ctx context.Context) error
@@ -48,7 +45,11 @@ func (t *txManager) tx(ctx context.Context, opts pgx.TxOptions, handler Handler)
 		}
 
 		if err != nil {
+			log.Println(fmt.Sprintf("АЛООООО: %s", err.Error()))
+
 			if txErr := tx.Rollback(ctx); txErr != nil {
+				log.Println(fmt.Sprintf("АЛООООО: %s", txErr.Error()))
+
 				err = errs.Join(txErr, err)
 			}
 
@@ -56,6 +57,8 @@ func (t *txManager) tx(ctx context.Context, opts pgx.TxOptions, handler Handler)
 		}
 
 		if txErr := tx.Commit(ctx); txErr != nil {
+			log.Println(fmt.Sprintf("АЛООООО: %s", txErr.Error()))
+
 			err = txErr
 		}
 	}()
