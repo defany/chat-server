@@ -3,7 +3,7 @@ package chatrepo
 import (
 	"context"
 	"github.com/defany/chat-server/app/internal/converter"
-	"github.com/defany/chat-server/app/pkg/logger/sl"
+	"github.com/defany/slogger/pkg/logger/sl"
 )
 
 func (r *repository) SendMessage(ctx context.Context, input converter.SendMessageInput) error {

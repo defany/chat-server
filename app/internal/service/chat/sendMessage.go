@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/defany/chat-server/app/internal/converter"
 	"github.com/defany/chat-server/app/internal/model"
-	"github.com/defany/chat-server/app/pkg/logger/sl"
+	"github.com/defany/slogger/pkg/logger/sl"
 )
 
 func (s *service) SendMessage(ctx context.Context, input converter.SendMessageInput) error {
@@ -20,6 +20,9 @@ func (s *service) SendMessage(ctx context.Context, input converter.SendMessageIn
 			Action: model.LogSendMessage,
 			UserID: input.From,
 		})
+		if err != nil {
+			return err
+		}
 
 		return nil
 	})

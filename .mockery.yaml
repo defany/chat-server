@@ -1,0 +1,12 @@
+with-expecter: True
+dir: "{{.InterfaceDir}}/mocks"
+mockname: "Mock{{.InterfaceName}}"
+outpkg: "mock{{.PackageName}}"
+filename: "{{.InterfaceName}}.go"
+all: True
+packages:
+  github.com/defany/chat-server:
+    config:
+      recursive: True
+      exclude:
+        - app/pkg

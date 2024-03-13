@@ -7,7 +7,7 @@ import (
 )
 
 type Chat interface {
-	Create(ctx context.Context, chat model.Chat) error
+	Create(ctx context.Context, chat model.Chat) (uint64, error)
 	Delete(ctx context.Context, id int64) error
 	SendMessage(ctx context.Context, input converter.SendMessageInput) error
 }
