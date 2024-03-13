@@ -29,14 +29,17 @@ services:
         condition: service_healthy
     environment:
       DB_HOST: postgres
+      CONFIG_PATH: ./local.json
 
   server:
+    environment:
+      CONFIG_PATH: ./local.json
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "50001:50001"
-    restart: on-failure
+    restart: unless-stopped
     # Не придумал как ожидать завершения мигратора
     depends_on:
       postgres:
