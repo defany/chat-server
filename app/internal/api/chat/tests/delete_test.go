@@ -2,6 +2,9 @@ package chattests
 
 import (
 	"context"
+	"log/slog"
+	"testing"
+
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/defany/chat-server/app/internal/api/chat"
 	"github.com/defany/chat-server/app/internal/converter"
@@ -11,8 +14,6 @@ import (
 	"github.com/defany/slogger/pkg/logger/handlers/slogpretty"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log/slog"
-	"testing"
 )
 
 func TestImplementation_SuccessDelete(t *testing.T) {

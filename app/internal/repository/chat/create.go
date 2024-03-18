@@ -2,6 +2,7 @@ package chatrepo
 
 import (
 	"context"
+
 	"github.com/defany/chat-server/app/internal/model"
 	"github.com/defany/slogger/pkg/logger/sl"
 	"github.com/jackc/pgx/v5"

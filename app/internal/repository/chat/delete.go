@@ -2,6 +2,7 @@ package chatrepo
 
 import (
 	"context"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/defany/slogger/pkg/logger/sl"
 )

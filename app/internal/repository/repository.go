@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/defany/chat-server/app/internal/converter"
 	"github.com/defany/chat-server/app/internal/model"
 )

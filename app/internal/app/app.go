@@ -3,11 +3,12 @@ package app
 import (
 	"context"
 	"fmt"
+	"net"
+
 	"github.com/defany/chat-server/app/pkg/closer"
 	chatv1 "github.com/defany/chat-server/app/pkg/gen/chat/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"net"
 )
 
 type App struct {

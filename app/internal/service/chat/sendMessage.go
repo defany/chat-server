@@ -2,6 +2,7 @@ package chatservice
 
 import (
 	"context"
+
 	"github.com/defany/chat-server/app/internal/converter"
 	"github.com/defany/chat-server/app/internal/model"
 	"github.com/defany/slogger/pkg/logger/sl"

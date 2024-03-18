@@ -2,6 +2,9 @@ package chattests
 
 import (
 	"context"
+	"log/slog"
+	"testing"
+
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/defany/chat-server/app/internal/api/chat"
 	"github.com/defany/chat-server/app/internal/converter"
@@ -12,8 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log/slog"
-	"testing"
 )
 
 func TestImplementation_SuccessSendMessage(t *testing.T) {

@@ -2,6 +2,7 @@ package logrepo
 
 import (
 	"context"
+
 	"github.com/defany/chat-server/app/internal/model"
 )
 

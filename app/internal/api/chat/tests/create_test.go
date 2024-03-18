@@ -2,6 +2,9 @@ package chattests
 
 import (
 	"context"
+	"log/slog"
+	"testing"
+
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/defany/chat-server/app/internal/api/chat"
 	"github.com/defany/chat-server/app/internal/converter"
@@ -10,8 +13,6 @@ import (
 	chatv1 "github.com/defany/chat-server/app/pkg/gen/chat/v1"
 	"github.com/defany/slogger/pkg/logger/handlers/slogpretty"
 	"github.com/stretchr/testify/require"
-	"log/slog"
-	"testing"
 )
 
 func TestImplementation_SuccessCreate(t *testing.T) {

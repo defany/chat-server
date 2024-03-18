@@ -3,6 +3,8 @@ package usertests
 import (
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/brianvoe/gofakeit"
 	"github.com/defany/chat-server/app/internal/converter"
 	"github.com/defany/chat-server/app/internal/model"
@@ -17,7 +19,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"testing"
 )
 
 func TestService_SuccessSendMessage(t *testing.T) {
