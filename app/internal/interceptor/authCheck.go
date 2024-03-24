@@ -3,7 +3,6 @@ package interceptor
 import (
 	"context"
 	"errors"
-	"log"
 
 	accessClient "github.com/defany/auth-service/app/pkg/gen/proto/access/v1"
 	"google.golang.org/grpc"
@@ -27,12 +26,8 @@ func GRPCValidate(client accessClient.AccessServiceClient) func(ctx context.Cont
 			Endpoint: server.FullMethod,
 		})
 		if err != nil {
-			log.Println("validate check failed", err.Error())
-
 			return nil, err
 		}
-
-		log.Println("all cool")
 
 		return handler(ctx, req)
 	}
