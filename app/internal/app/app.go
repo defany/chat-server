@@ -3,17 +3,22 @@ package app
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
 
+	accessv1 "github.com/defany/auth-service/app/pkg/gen/proto/access/v1"
+	"github.com/defany/chat-server/app/internal/interceptor"
 	"github.com/defany/chat-server/app/pkg/closer"
 	chatv1 "github.com/defany/chat-server/app/pkg/gen/chat/v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
 
 type App struct {
-	di         *DI
-	grpcServer *grpc.Server
+	di           *DI
+	grpcServer   *grpc.Server
+	accessClient accessv1.AccessServiceClient
 }
 
 func NewApp() *App {
@@ -34,6 +39,10 @@ func (a *App) Run(ctx context.Context) error {
 	}()
 
 	a.setupDI()
+
+	if err := a.registerAccessClient(ctx); err != nil {
+		return err
+	}
 
 	a.registerUserService(ctx)
 
@@ -64,10 +73,25 @@ func (a *App) runGRPCServer(ctx context.Context) error {
 }
 
 func (a *App) registerUserService(ctx context.Context) {
-	a.grpcServer = grpc.NewServer()
+	validateMiddleware := interceptor.GRPCValidate(a.accessClient)
+
+	a.grpcServer = grpc.NewServer(grpc.UnaryInterceptor(validateMiddleware))
 	reflection.Register(a.grpcServer)
 
 	chatv1.RegisterChatServer(a.grpcServer, a.di.ChatImpl(ctx))
 
 	return
+}
+
+func (a *App) registerAccessClient(ctx context.Context) error {
+	log.Println(a.DI().Config(ctx).Server.AuthServerAddr)
+
+	lis, err := grpc.Dial(a.DI().Config(ctx).Server.AuthServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
+
+	a.accessClient = accessv1.NewAccessServiceClient(lis)
+
+	return nil
 }
