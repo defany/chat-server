@@ -2,26 +2,34 @@ package chatrepo
 
 import (
 	"context"
+
 	"github.com/defany/chat-server/app/internal/model"
-	"github.com/defany/chat-server/app/pkg/logger/sl"
+	"github.com/defany/slogger/pkg/logger/sl"
+	"github.com/jackc/pgx/v5"
 )
 
-func (r *repository) Create(ctx context.Context, chat model.Chat) error {
+func (r *repository) Create(ctx context.Context, chat model.Chat) (uint64, error) {
 	op := sl.FnName()
 
 	q := r.qb.Insert(chats).
 		Columns(chatsTitle).
-		Values(chat.Title)
+		Values(chat.Title).
+		Suffix("returning id")
 
 	sql, args, err := q.ToSql()
 	if err != nil {
-		return sl.Err(op, err)
+		return 0, sl.Err(op, err)
 	}
 
-	_, err = r.db.Exec(ctx, sql, args...)
+	rows, err := r.db.Query(ctx, sql, args...)
 	if err != nil {
-		return sl.Err(op, err)
+		return 0, sl.Err(op, err)
 	}
 
-	return nil
+	id, err := pgx.CollectOneRow(rows, pgx.RowTo[uint64])
+	if err != nil {
+		return 0, sl.Err(op, err)
+	}
+
+	return id, nil
 }

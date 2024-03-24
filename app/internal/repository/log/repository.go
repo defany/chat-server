@@ -3,7 +3,7 @@ package logrepo
 import (
 	"github.com/Masterminds/squirrel"
 	repo "github.com/defany/chat-server/app/internal/repository"
-	"github.com/defany/chat-server/app/pkg/postgres"
+	"github.com/defany/db/pkg/postgres"
 )
 
 const (

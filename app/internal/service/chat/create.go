@@ -2,9 +2,10 @@ package chatservice
 
 import (
 	"context"
+
 	"github.com/defany/chat-server/app/internal/converter"
 	"github.com/defany/chat-server/app/internal/model"
-	"github.com/defany/chat-server/app/pkg/logger/sl"
+	"github.com/defany/slogger/pkg/logger/sl"
 )
 
 func (s *service) CreateChat(ctx context.Context, input converter.CreateChatInput) (converter.CreateChatOutput, error) {
@@ -13,12 +14,14 @@ func (s *service) CreateChat(ctx context.Context, input converter.CreateChatInpu
 	var output converter.CreateChatOutput
 
 	err := s.tx.ReadCommitted(ctx, func(ctx context.Context) error {
-		err := s.repo.Create(ctx, model.Chat{
+		chatID, err := s.repo.Create(ctx, model.Chat{
 			Title: input.Title,
 		})
 		if err != nil {
 			return err
 		}
+
+		output.ID = chatID
 
 		err = s.log.Log(ctx, model.Log{
 			Action: model.LogCreateChat,

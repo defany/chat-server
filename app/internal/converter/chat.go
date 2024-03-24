@@ -1,17 +1,17 @@
 package converter
 
 import (
-	"github.com/brianvoe/gofakeit/v6"
 	chatv1 "github.com/defany/chat-server/app/pkg/gen/chat/v1"
 )
 
 type CreateChatInput struct {
-	Title  string
-	UserID uint64
+	Title     string
+	Nicknames []string
+	UserID    uint64
 }
 
 type CreateChatOutput struct {
-	ID int64
+	ID uint64
 }
 
 type DeleteChatInput struct {
@@ -25,25 +25,25 @@ type SendMessageInput struct {
 	Text   string
 }
 
-func ToCreateChatInput(req *chatv1.CreateRequest) CreateChatInput {
+func ToCreateChatInput(userID uint64, req *chatv1.CreateRequest) CreateChatInput {
 	return CreateChatInput{
-		Title: req.GetTitle(),
+		Title:     req.GetTitle(),
+		Nicknames: req.GetUsernames(),
 		// Зафиксим это, когда будем делать авторизацию и будем брать из заголовка
-		UserID: uint64(gofakeit.Uint32()),
+		UserID: userID,
 	}
 }
 
 func FromCreateChatInput(input CreateChatOutput) *chatv1.CreateResponse {
 	return &chatv1.CreateResponse{
-		Id: input.ID,
+		Id: int64(input.ID),
 	}
 }
 
-func ToDeleteChatInput(req *chatv1.DeleteRequest) DeleteChatInput {
+func ToDeleteChatInput(userID uint64, req *chatv1.DeleteRequest) DeleteChatInput {
 	return DeleteChatInput{
 		ChatID: req.GetId(),
-		// Зафиксим это, когда будем делать авторизацию и будем брать из заголовка
-		UserID: uint64(gofakeit.Uint32()),
+		UserID: userID,
 	}
 }
 

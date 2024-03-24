@@ -3,7 +3,7 @@ package chatservice
 import (
 	"github.com/defany/chat-server/app/internal/repository"
 	servicedef "github.com/defany/chat-server/app/internal/service"
-	"github.com/defany/chat-server/app/pkg/postgres"
+	"github.com/defany/db/pkg/postgres"
 )
 
 type service struct {

@@ -4,6 +4,12 @@ REGISTRY_HOST=docker.io
 REGISTRY:=defany
 CONTAINER_NAME:=chat-server:v0.0.1
 
+ifeq ($(OS),Windows_NT)
+    path := $(shell echo %cd%)
+else
+    path := $(shell pwd)
+endif
+
 protogen:
 	buf generate proto
 
@@ -44,3 +50,6 @@ up-no-cache:
 
 up:
 	docker compose up --build -d
+
+mockup:
+	docker run --rm -v "$(path)":/src -w /src vektra/mockery --all

@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/defany/chat-server/app/internal/app"
-	"github.com/defany/chat-server/app/pkg/logger/sl"
-	"github.com/defany/chat-server/app/pkg/postgres"
 	"log/slog"
+
+	"github.com/defany/chat-server/app/internal/app"
+	"github.com/defany/db/pkg/postgres"
+	"github.com/defany/slogger/pkg/logger/sl"
 )
 
 func main() {

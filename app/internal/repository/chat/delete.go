@@ -2,8 +2,9 @@ package chatrepo
 
 import (
 	"context"
+
 	"github.com/Masterminds/squirrel"
-	"github.com/defany/chat-server/app/pkg/logger/sl"
+	"github.com/defany/slogger/pkg/logger/sl"
 )
 
 func (r *repository) Delete(ctx context.Context, id int64) error {

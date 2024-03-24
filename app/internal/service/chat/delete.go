@@ -2,9 +2,10 @@ package chatservice
 
 import (
 	"context"
+
 	"github.com/defany/chat-server/app/internal/converter"
 	"github.com/defany/chat-server/app/internal/model"
-	"github.com/defany/chat-server/app/pkg/logger/sl"
+	"github.com/defany/slogger/pkg/logger/sl"
 )
 
 func (s *service) DeleteChat(ctx context.Context, input converter.DeleteChatInput) error {
@@ -20,6 +21,9 @@ func (s *service) DeleteChat(ctx context.Context, input converter.DeleteChatInpu
 			Action: model.LogDeleteChat,
 			UserID: input.UserID,
 		})
+		if err != nil {
+			return err
+		}
 
 		return nil
 	})

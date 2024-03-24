@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/defany/chat-server/app/pkg/logger/sl"
+	"github.com/defany/slogger/pkg/logger/sl"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 

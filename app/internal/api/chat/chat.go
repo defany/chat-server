@@ -1,9 +1,10 @@
 package chat
 
 import (
-	servicedef "github.com/defany/chat-server/app/internal/service"
-	"github.com/defany/chat-server/app/pkg/gen/chat/v1"
 	"log/slog"
+
+	servicedef "github.com/defany/chat-server/app/internal/service"
+	chatv1 "github.com/defany/chat-server/app/pkg/gen/chat/v1"
 )
 
 type Implementation struct {

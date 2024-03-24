@@ -2,6 +2,9 @@ package app
 
 import (
 	"context"
+	"log/slog"
+	"os"
+
 	"github.com/defany/chat-server/app/internal/api/chat"
 	"github.com/defany/chat-server/app/internal/config"
 	"github.com/defany/chat-server/app/internal/repository"
@@ -10,10 +13,8 @@ import (
 	servicedef "github.com/defany/chat-server/app/internal/service"
 	chatservice "github.com/defany/chat-server/app/internal/service/chat"
 	"github.com/defany/chat-server/app/pkg/closer"
-	"github.com/defany/chat-server/app/pkg/logger/sl"
-	"github.com/defany/chat-server/app/pkg/postgres"
-	"log/slog"
-	"os"
+	"github.com/defany/db/pkg/postgres"
+	"github.com/defany/slogger/pkg/logger/sl"
 )
 
 type DI struct {

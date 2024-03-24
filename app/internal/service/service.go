@@ -2,6 +2,7 @@ package servicedef
 
 import (
 	"context"
+
 	"github.com/defany/chat-server/app/internal/converter"
 )
 
