@@ -5,7 +5,10 @@ import (
 	"log/slog"
 	"os"
 
+	accessv1 "github.com/defany/auth-service/app/pkg/gen/proto/access/v1"
 	"github.com/defany/chat-server/app/internal/api/chat"
+	"github.com/defany/chat-server/app/internal/client"
+	"github.com/defany/chat-server/app/internal/client/access"
 	"github.com/defany/chat-server/app/internal/config"
 	"github.com/defany/chat-server/app/internal/repository"
 	chatrepo "github.com/defany/chat-server/app/internal/repository/chat"
@@ -15,6 +18,8 @@ import (
 	"github.com/defany/chat-server/app/pkg/closer"
 	"github.com/defany/db/pkg/postgres"
 	"github.com/defany/slogger/pkg/logger/sl"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type DI struct {
@@ -33,6 +38,10 @@ type DI struct {
 
 	implementations struct {
 		chat *chat.Implementation
+	}
+
+	clients struct {
+		accessClient client.Access
 	}
 
 	txManager postgres.TxManager
@@ -141,4 +150,23 @@ func (d *DI) ChatImpl(ctx context.Context) *chat.Implementation {
 	d.implementations.chat = chat.NewImplementation(d.Log(ctx), d.ChatService(ctx))
 
 	return d.implementations.chat
+}
+
+func (d *DI) AccessClient(ctx context.Context) client.Access {
+	if d.clients.accessClient != nil {
+		return d.clients.accessClient
+	}
+
+	lis, err := grpc.Dial(d.Config(ctx).Server.AuthServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		d.Log(ctx).Error("failed to setup grpc.Dial for access client", sl.ErrAttr(err))
+
+		os.Exit(1)
+	}
+
+	accessClient := accessv1.NewAccessServiceClient(lis)
+
+	d.clients.accessClient = access.NewClient(accessClient)
+
+	return d.clients.accessClient
 }

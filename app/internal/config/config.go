@@ -17,7 +17,8 @@ type Metrics struct {
 }
 
 type Server struct {
-	Port int `json:"port" env:"SERVER_PORT" env-default:"50001"`
+	Port           int    `json:"port" env:"SERVER_PORT" env-default:"50001"`
+	AuthServerAddr string `json:"auth_addr" env:"AUTH_SERVER_ADDR" env-default:"docker.internal.host:7000"`
 }
 
 type Database struct {

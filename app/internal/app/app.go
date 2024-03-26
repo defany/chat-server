@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 
+	accessv1 "github.com/defany/auth-service/app/pkg/gen/proto/access/v1"
+	"github.com/defany/chat-server/app/internal/interceptor"
 	"github.com/defany/chat-server/app/pkg/closer"
 	chatv1 "github.com/defany/chat-server/app/pkg/gen/chat/v1"
 	"google.golang.org/grpc"
@@ -12,8 +14,9 @@ import (
 )
 
 type App struct {
-	di         *DI
-	grpcServer *grpc.Server
+	di           *DI
+	grpcServer   *grpc.Server
+	accessClient accessv1.AccessServiceClient
 }
 
 func NewApp() *App {
@@ -35,7 +38,7 @@ func (a *App) Run(ctx context.Context) error {
 
 	a.setupDI()
 
-	a.registerUserService(ctx)
+	a.registerServices(ctx)
 
 	return a.runGRPCServer(ctx)
 }
@@ -63,8 +66,10 @@ func (a *App) runGRPCServer(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) registerUserService(ctx context.Context) {
-	a.grpcServer = grpc.NewServer()
+func (a *App) registerServices(ctx context.Context) {
+	itcp := interceptor.NewInterceptor(a.DI().AccessClient(ctx))
+
+	a.grpcServer = grpc.NewServer(grpc.UnaryInterceptor(itcp.Interceptor))
 	reflection.Register(a.grpcServer)
 
 	chatv1.RegisterChatServer(a.grpcServer, a.di.ChatImpl(ctx))
